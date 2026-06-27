@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 
 import { login } from "../services/auth";
 
+import { TOKEN_KEY } from "../utils/constants";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,10 +22,7 @@ function Login() {
     try {
       const response = await login(data);
 
-      localStorage.setItem(
-        "token",
-        response.data.token
-      );
+      localStorage.setItem(TOKEN_KEY, response.data.token);
 
       navigate("/dashboard");
     } catch (error) {

@@ -39,14 +39,13 @@ model User {
 }
 
 model Resume {
-  id            String   @id @default(cuid())
-  fileName      String
-  filePath      String
-  extractedText String   @db.Text
-  uploadedAt    DateTime @default(now())
+  id         String   @id @default(cuid())
+  fileName   String
+  filePath   String
+  uploadedAt DateTime @default(now())
 
   userId String @unique
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model InterviewSession {
