@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum InterviewDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuestionType {
+  TECHNICAL
+  BEHAVIORAL
+  CODING
+}
+
+enum InterviewStatus {
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  avatar    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  resume            Resume?
+  interviewSessions InterviewSession[]
+  userStats         UserStats?
+}
+
+model Resume {
+  id            String   @id @default(cuid())
+  fileName      String
+  filePath      String
+  extractedText String   @db.Text
+  uploadedAt    DateTime @default(now())
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model InterviewSession {
+  id          String                @id @default(cuid())
+  role        String
+  difficulty  InterviewDifficulty
+  overallScore Float?
+  status      InterviewStatus @default(IN_PROGRESS)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  questions InterviewQuestion[]
+}
+
+model InterviewQuestion {
+  id         String       @id @default(cuid())
+  question   String       @db.Text
+  type       QuestionType
+  difficulty InterviewDifficulty
+
+  sessionId String
+  session   InterviewSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  answer InterviewAnswer?
+}
+
+model InterviewAnswer {
+  id           String @id @default(cuid())
+
+  answer       String @db.Text
+  score        Float?
+
+  feedback     String? @db.Text
+  strongPoints String? @db.Text
+  weakPoints   String? @db.Text
+
+  questionId String @unique
+  question   InterviewQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+}
+
+model UserStats {
+  id               String @id @default(cuid())
+
+  totalInterviews  Int @default(0)
+  averageScore     Float @default(0)
+  bestScore        Float @default(0)
+
+  userId String @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
