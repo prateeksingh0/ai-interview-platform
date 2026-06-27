@@ -1,11 +1,7 @@
-import { Button } from "@/components/ui/button";
+import AppRoutes from "./routes/AppRoutes";
 
 function App() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950">
-      <Button>AI Interview Platform 🚀</Button>
-    </div>
-  );
+  return <AppRoutes />;
 }
 
 export default App;
