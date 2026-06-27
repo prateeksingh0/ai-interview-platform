@@ -4,9 +4,17 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
+import routes from "./routes/index.js";
+import errorMiddleware from "./middlewares/error.middleware.js";
+
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
 
 app.use(helmet());
 
@@ -24,5 +32,9 @@ app.get("/api/health", (req, res) => {
     message: "Server is running",
   });
 });
+
+app.use("/api/v1", routes);
+
+app.use(errorMiddleware);
 
 export default app;
