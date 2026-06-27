@@ -1,15 +1,19 @@
 import bcrypt from "bcrypt";
 import prisma from "../config/prisma.js";
+
+import ApiError from "../utils/apiError.js";
 import { generateToken } from "../utils/jwt.js";
 
 class AuthService {
   async register({ name, email, password }) {
     const existingUser = await prisma.user.findUnique({
-      where: { email },
+      where: {
+        email,
+      },
     });
 
     if (existingUser) {
-      throw new Error("Email already exists");
+      throw new ApiError(409, "Email already exists");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -40,20 +44,28 @@ class AuthService {
 
   async login({ email, password }) {
     const user = await prisma.user.findUnique({
-      where: { email },
+      where: {
+        email,
+      },
     });
 
     if (!user) {
-      throw new Error("Invalid email or password");
+      throw new ApiError(
+        401,
+        "Invalid email or password"
+      );
     }
 
-    const isMatch = await bcrypt.compare(
+    const validPassword = await bcrypt.compare(
       password,
       user.password
     );
 
-    if (!isMatch) {
-      throw new Error("Invalid email or password");
+    if (!validPassword) {
+      throw new ApiError(
+        401,
+        "Invalid email or password"
+      );
     }
 
     const token = generateToken({
