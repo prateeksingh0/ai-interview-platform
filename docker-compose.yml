@@ -1,0 +1,86 @@
+services:
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: ai-interview-postgres
+
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ai_interview
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  ai-service:
+
+    build:
+      context: ./ai-service
+
+    container_name: ai-interview-ai
+
+    restart: unless-stopped
+
+    env_file:
+      - ./ai-service/.env
+
+    environment:
+      OLLAMA_HOST: http://host.docker.internal:11434
+
+    ports:
+      - "8000:8000"
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  server:
+
+    build:
+      context: ./server
+
+    container_name: ai-interview-server
+
+    restart: unless-stopped
+
+    depends_on:
+      - postgres
+      - ai-service
+
+    env_file:
+      - ./server/.env
+
+    environment:
+
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ai_interview
+
+      AI_SERVICE_URL: http://ai-service:8000
+
+    ports:
+      - "5000:5000"
+
+    volumes:
+      - ./server/uploads:/app/uploads
+
+  client:
+
+    build:
+      context: ./client
+
+    container_name: ai-interview-client
+
+    restart: unless-stopped
+
+    depends_on:
+      - server
+
+    ports:
+      - "4173:4173"
+
+volumes:
+
+  postgres_data:
