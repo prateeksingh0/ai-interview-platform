@@ -18,6 +18,9 @@ import Interview from "./pages/interview/Interview";
 import InterviewSession from "./pages/interview/InterviewSession";
 
 import Results from "./pages/results/Results";
+import Analytics from "./pages/analytics/Analytics";
+import Profile from "./pages/profile/Profile";
+
 
 function App() {
   return (
@@ -73,6 +76,15 @@ function App() {
         }
       />
 
+
+      <Route
+        path="/results/:id"
+        element={
+          <ProtectedRoute>
+            <Results />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/history"
         element={
@@ -83,10 +95,19 @@ function App() {
       />
 
       <Route
-        path="/results/:id"
+        path="/analytics"
         element={
           <ProtectedRoute>
-            <Results />
+            <Analytics />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />
