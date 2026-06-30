@@ -27,3 +27,15 @@ export const updateProfile = asyncHandler(async (req, res) => {
     )
   );
 });
+
+export const deleteResume = asyncHandler(async (req, res) => {
+  const result =
+    await profileService.deleteResume(req.user.id);
+
+  res.status(200).json(
+    ApiResponse.success(
+      result.message,
+      null
+    )
+  );
+});

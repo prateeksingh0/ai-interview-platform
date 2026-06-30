@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+
+import authService from "../../services/auth.service";
 
 import DashboardLayout from "../../layouts/DashboardLayout";
-
 import profileService from "../../services/profile.service";
 
 import {
@@ -17,6 +19,8 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 
 export default function Profile() {
+
+  const navigate = useNavigate();
 
   const [loading, setLoading] =
     useState(true);
@@ -77,6 +81,39 @@ export default function Profile() {
     }
   }
 
+  async function handleDeleteResume() {
+    if (
+      !window.confirm(
+        "Delete your resume?"
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response =
+        await profileService.deleteResume();
+
+      toast.success(response.message);
+
+      await loadProfile();
+
+    } catch (error) {
+
+      toast.error(
+        error.response?.data?.message ||
+        "Unable to delete resume."
+      );
+
+    }
+  }
+
+  function handleLogout() {
+    authService.logout();
+
+    navigate("/login");
+  }
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -135,15 +172,76 @@ export default function Profile() {
 
           </div>
 
-          <Button
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving
-              ? "Saving..."
-              : "Save Changes"}
-          </Button>
 
+          <div className="rounded-lg border p-4 space-y-2">
+
+            <h3 className="font-semibold">
+              Resume
+            </h3>
+
+            {profile.resume ? (
+              <>
+
+                <p>
+                  <strong>Filename:</strong>{" "}
+                  {profile.resume.fileName}
+                </p>
+
+                <p>
+                  <strong>Uploaded:</strong>{" "}
+                  {new Date(
+                    profile.resume.uploadedAt
+                  ).toLocaleString()}
+                </p>
+
+              </>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                No resume uploaded.
+              </p>
+            )}
+
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+            >
+              {saving
+                ? "Saving..."
+                : "Save Changes"}
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() =>
+                navigate("/resume")
+              }
+            >
+              {profile.resume
+                ? "Replace Resume"
+                : "Upload Resume"}
+            </Button>
+
+            {profile.resume && (
+              <Button
+                variant="destructive"
+                onClick={handleDeleteResume}
+              >
+                Delete Resume
+              </Button>
+            )}
+
+            <Button
+              variant="secondary"
+              onClick={handleLogout}
+            >
+              Logout
+            </Button>
+
+          </div>
         </CardContent>
 
       </Card>

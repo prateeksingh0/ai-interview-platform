@@ -15,6 +15,14 @@ class ProfileService {
 
     return response.data;
   }
+
+  async deleteResume() {
+    const response = await api.delete(
+      "/profile/resume"
+    );
+
+    return response.data;
+  }
 }
 
 export default new ProfileService();
