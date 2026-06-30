@@ -1,6 +1,11 @@
 import json
+import time
 
-from app.services.ollama_service import client, MODEL
+from app.services.ollama_service import (
+    client,
+    MODEL,
+    OLLAMA_OPTIONS,
+)
 
 
 def generate_questions(
@@ -60,7 +65,8 @@ Do not wrap the JSON inside triple backticks.
 
 Return ONLY JSON.
 """
-
+    start = time.perf_counter()
+    
     response = client.chat(
         model=MODEL,
         messages=[
@@ -70,6 +76,14 @@ Return ONLY JSON.
             }
         ],
         format="json",
+        think=False,
+        options=OLLAMA_OPTIONS,
+    )
+    
+    end = time.perf_counter()
+
+    print(
+        f"Question generation took {end-start:.2f} seconds"
     )
 
     content = response["message"]["content"]

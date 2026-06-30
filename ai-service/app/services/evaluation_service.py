@@ -1,6 +1,11 @@
 import json
+import time
 
-from app.services.ollama_service import client, MODEL
+from app.services.ollama_service import (
+    client,
+    MODEL,
+    OLLAMA_OPTIONS,
+)
 
 
 def evaluate_answer(
@@ -51,7 +56,8 @@ Rules:
 - Be fair and constructive.
 - Return ONLY JSON.
 - Do not use markdown.
-"""
+""" 
+    start = time.perf_counter()
 
     response = client.chat(
         model=MODEL,
@@ -62,6 +68,14 @@ Rules:
             }
         ],
         format="json",
+        think=False,
+        options=OLLAMA_OPTIONS,
+    )
+    
+    end = time.perf_counter()
+
+    print(
+        f"Evaluation took {end-start:.2f} seconds"
     )
 
     content = response["message"]["content"]

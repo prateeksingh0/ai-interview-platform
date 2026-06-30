@@ -15,6 +15,13 @@ OLLAMA_HOST = os.getenv(
 
 client = ollama.Client(host=OLLAMA_HOST)
 
+OLLAMA_OPTIONS = {
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "num_predict": 700,
+    "num_ctx": 4096,
+}
+
 
 def analyze_resume(resume_text: str, job_description: str):
     prompt = f"""
