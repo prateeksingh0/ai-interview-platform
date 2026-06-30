@@ -20,11 +20,14 @@ class AIService {
   }
 
   async generateQuestions(data) {
+
+    console.log("A. About to call FastAPI");
     const response = await axios.post(
       `${process.env.AI_SERVICE_URL}/interview/questions`,
       data
     );
 
+    console.log("B. FastAPI returned");
     return response.data.data.questions;
   }
 

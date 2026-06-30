@@ -9,6 +9,7 @@ import {
   submitInterview,
   getInterview,
   finishInterview,
+  getHistory,
 } from "../controllers/interview.controller.js";
 
 import {
@@ -36,17 +37,22 @@ router.post(
   submitAnswer
 );
 
-router.get(
-  "/:id",
-  authMiddleware,
-  getInterview
-);
-
-
 router.post(
   "/finish",
   authMiddleware,
   finishInterview
+);
+
+router.get(
+  "/history",
+  authMiddleware,
+  getHistory
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  getInterview
 );
 
 router.post(
@@ -56,4 +62,7 @@ router.post(
   validate,
   submitInterview
 );
+
+
+
 export default router;

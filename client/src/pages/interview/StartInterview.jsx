@@ -20,6 +20,7 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 
 export default function StartInterview() {
+
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -47,11 +48,12 @@ export default function StartInterview() {
 
       toast.success(response.message);
 
+      localStorage.setItem("currentQuestion", "0");
       navigate(`/interview/${response.data.id}`);
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-          "Unable to start interview."
+        "Unable to start interview."
       );
     } finally {
       setLoading(false);

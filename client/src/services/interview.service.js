@@ -35,6 +35,12 @@ class InterviewService {
 
         return response.data;
     }
+
+    async getHistory() {
+        const response = await api.get("/interview/history");
+
+        return response.data;
+    }
 }
 
 export default new InterviewService();

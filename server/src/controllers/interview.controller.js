@@ -80,3 +80,16 @@ export const finishInterview = asyncHandler(async (req, res) => {
     )
   );
 });
+
+export const getHistory = asyncHandler(async (req, res) => {
+  const history = await interviewService.getHistory(
+    req.user.id
+  );
+
+  res.status(200).json(
+    ApiResponse.success(
+      "Interview history fetched successfully",
+      history
+    )
+  );
+});

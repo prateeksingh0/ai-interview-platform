@@ -17,6 +17,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 
 import Interview from "./pages/interview/Interview";
 
+import Results from "./pages/results/Results";
+
 function App() {
   return (
     <Routes>
@@ -76,6 +78,15 @@ function App() {
         element={
           <ProtectedRoute>
             <History />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/results/:id"
+        element={
+          <ProtectedRoute>
+            <Results />
           </ProtectedRoute>
         }
       />

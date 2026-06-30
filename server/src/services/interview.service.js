@@ -4,21 +4,26 @@ import ApiError from "../utils/apiError.js";
 
 class InterviewService {
   async startInterview(userId, role, difficulty) {
+    console.log("1. Start interview");
     const resume = await prisma.resume.findUnique({
       where: {
         userId,
       },
     });
 
+    console.log("2. Resume fetched");
     if (!resume) {
       throw new ApiError(404, "Resume not found");
     }
+    console.log("3. Calling AI");
 
     const questions = await aiService.generateQuestions({
       resume_text: resume.extractedText,
       role,
       difficulty,
     });
+
+    console.log("4. AI returned");
 
     const session = await prisma.interviewSession.create({
       data: {
@@ -27,6 +32,8 @@ class InterviewService {
         userId,
       },
     });
+
+    console.log("5. Session created");
 
     await prisma.interviewQuestion.createMany({
       data: questions.map((question) => ({
@@ -319,6 +326,25 @@ class InterviewService {
     await this.updateUserStats(userId);
 
     return updatedSession;
+  }
+
+  async getHistory(userId) {
+    return await prisma.interviewSession.findMany({
+      where: {
+        userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        role: true,
+        difficulty: true,
+        overallScore: true,
+        status: true,
+        createdAt: true,
+      },
+    });
   }
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import DashboardLayout from "../../layouts/DashboardLayout";
@@ -15,6 +15,7 @@ import { Textarea } from "../../components/ui/textarea";
 
 export default function Interview() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
 
@@ -64,6 +65,13 @@ export default function Interview() {
   async function handleNext() {
     const question = interview.questions[currentQuestion];
 
+    const answer = answers[question.id]?.trim();
+
+    if (!answer) {
+      toast.error("Please answer the question before continuing.");
+      return;
+    }
+
     try {
       setSaving(true);
 
@@ -77,6 +85,34 @@ export default function Interview() {
       toast.error(
         error.response?.data?.message ||
         "Failed to save answer."
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleFinish() {
+    const question = interview.questions[currentQuestion];
+
+    try {
+      setSaving(true);
+
+      await interviewService.submitAnswer({
+        questionId: question.id,
+        answer: answers[question.id] || "",
+      });
+
+      await interviewService.finishInterview(interview.id);
+
+      localStorage.removeItem("currentQuestion");
+
+      toast.success("Interview completed!");
+
+      navigate(`/results/${interview.id}`);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to finish interview."
       );
     } finally {
       setSaving(false);
@@ -143,12 +179,21 @@ export default function Interview() {
             </Button>
 
             {currentQuestion === interview.questions.length - 1 ? (
-              <Button>
-                Finish Interview
+              <Button
+                disabled={
+                  saving ||
+                  !answers[question.id]?.trim()
+                }
+                onClick={handleFinish}
+              >
+                {saving ? "Finishing..." : "Finish Interview"}
               </Button>
             ) : (
               <Button
-                disabled={saving}
+                disabled={
+                  saving ||
+                  !answers[question.id]?.trim()
+                }
                 onClick={handleNext}
               >
                 {saving ? "Saving..." : "Next"}
