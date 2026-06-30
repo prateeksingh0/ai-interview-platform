@@ -5,6 +5,7 @@ from app.services.ollama_service import (
     client,
     MODEL,
     OLLAMA_OPTIONS,
+    KEEP_ALIVE,
 )
 
 
@@ -17,11 +18,11 @@ def evaluate_answer(
     question_type: str,
 ):
     prompt = f"""
-You are an expert technical interviewer.
+You are an expert professional interviewer experienced in evaluating candidates across all industries.
 
-Evaluate the candidate's answer.
+Evaluate the candidate's answer professionally.
 
-Role:
+Candidate Role:
 {role}
 
 Difficulty:
@@ -30,7 +31,7 @@ Difficulty:
 Question Type:
 {question_type}
 
-Resume:
+Candidate Resume:
 {resume_text}
 
 Interview Question:
@@ -39,9 +40,30 @@ Interview Question:
 Candidate Answer:
 {user_answer}
 
-Return ONLY valid JSON.
+Evaluation Guidelines:
 
-Format:
+- Evaluate according to the selected Candidate Role.
+- The Candidate Role has higher priority than the resume.
+- Use the resume only to understand the candidate's background.
+- Do not expect knowledge unrelated to the selected role.
+- Consider the selected difficulty level.
+
+Evaluate:
+
+- Accuracy
+- Relevance to the role
+- Practical knowledge
+- Communication
+- Problem-solving
+- Completeness
+
+For technical roles:
+Evaluate technical correctness and best practices.
+
+For non-technical roles:
+Evaluate professional knowledge, reasoning, decision-making and communication.
+
+Return ONLY valid JSON using this exact schema:
 
 {{
   "score": 0,
@@ -53,10 +75,12 @@ Format:
 Rules:
 
 - Score between 0 and 10.
-- Be fair and constructive.
-- Return ONLY JSON.
+- Feedback should be constructive and professional.
+- Strong points and weak points should contain concise bullet-style statements.
+- Return valid JSON only.
+- Do not explain anything.
 - Do not use markdown.
-""" 
+"""
     start = time.perf_counter()
 
     response = client.chat(
@@ -70,6 +94,7 @@ Rules:
         format="json",
         think=False,
         options=OLLAMA_OPTIONS,
+        keep_alive=KEEP_ALIVE,
     )
     
     end = time.perf_counter()
