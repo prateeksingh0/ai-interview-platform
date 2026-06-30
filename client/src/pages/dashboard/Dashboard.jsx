@@ -6,6 +6,7 @@ import dashboardService from "../../services/dashboard.service";
 
 import StatCard from "../../components/dashboard/StatCard";
 import RecentInterviews from "../../components/dashboard/RecentInterviews";
+import QuickActions from "../../components/dashboard/QuickActions";
 
 
 export default function Dashboard() {
@@ -70,6 +71,10 @@ export default function Dashboard() {
               : "Missing"
           }
         />
+
+        <div className="my-8">
+          <QuickActions />
+        </div>
 
         <div className="mt-8">
 
