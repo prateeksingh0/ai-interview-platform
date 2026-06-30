@@ -3,6 +3,7 @@ import { Router } from "express";
 import authRoutes from "./auth.routes.js";
 import resumeRoutes from "./resume.routes.js";
 import interviewRoutes from "./interview.routes.js";
+import dashboardRoutes from "./dashboard.routes.js";
 
 const router = Router();
 
@@ -18,7 +19,7 @@ router.get("/", (req, res) => {
 });
 
 router.use("/interview", interviewRoutes);
-
+router.use("/dashboard", dashboardRoutes);
 
 
 export default router;
