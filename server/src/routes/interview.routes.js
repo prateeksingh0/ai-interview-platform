@@ -7,6 +7,7 @@ import {
   startInterview,
   submitAnswer,
   submitInterview,
+  getInterview,
 } from "../controllers/interview.controller.js";
 
 import {
@@ -32,6 +33,12 @@ router.post(
   submitAnswerValidator,
   validate,
   submitAnswer
+);
+
+router.get(
+  "/:id",
+  authMiddleware,
+  getInterview
 );
 
 router.post(

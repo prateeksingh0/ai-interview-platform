@@ -15,6 +15,8 @@ import History from "./pages/history/History";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
+import Interview from "./pages/interview/Interview";
+
 function App() {
   return (
     <Routes>
@@ -52,7 +54,16 @@ function App() {
       />
 
       <Route
-        path="/interview"
+        path="/interview/:id"
+        element={
+          <ProtectedRoute>
+            <Interview />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/interview/start"
         element={
           <ProtectedRoute>
             <StartInterview />
@@ -73,6 +84,8 @@ function App() {
         path="*"
         element={<Navigate to="/dashboard" replace />}
       />
+
+
     </Routes>
   );
 }

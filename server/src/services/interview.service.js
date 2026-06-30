@@ -239,6 +239,31 @@ class InterviewService {
       },
     });
   }
+
+  async getInterview(userId, interviewId) {
+    const interview = await prisma.interviewSession.findFirst({
+      where: {
+        id: interviewId,
+        userId,
+      },
+      include: {
+        questions: {
+          include: {
+            answer: true,
+          },
+          orderBy: {
+            id: "asc",
+          },
+        },
+      },
+    });
+
+    if (!interview) {
+      throw new ApiError(404, "Interview not found");
+    }
+
+    return interview;
+  }
 }
 
 export default new InterviewService();

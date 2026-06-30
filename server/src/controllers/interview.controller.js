@@ -52,3 +52,17 @@ export const submitInterview = asyncHandler(async (req, res) => {
     )
   );
 });
+
+export const getInterview = asyncHandler(async (req, res) => {
+  const interview = await interviewService.getInterview(
+    req.user.id,
+    req.params.id
+  );
+
+  res.status(200).json(
+    ApiResponse.success(
+      "Interview fetched successfully",
+      interview
+    )
+  );
+});
