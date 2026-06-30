@@ -41,6 +41,14 @@ class InterviewService {
 
         return response.data;
     }
+
+    async deleteInterview(id) {
+        const response = await api.delete(
+            `/interview/${id}`
+        );
+
+        return response.data;
+    }
 }
 
 export default new InterviewService();

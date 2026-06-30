@@ -72,17 +72,19 @@ export default function Dashboard() {
           }
         />
 
-        <div className="my-8">
-          <QuickActions />
-        </div>
+      </div>
 
-        <div className="mt-8">
+      <div className="mt-8">
 
-          <RecentInterviews
-            interviews={dashboard.recentInterviews}
-          />
+        <QuickActions />
 
-        </div>
+      </div>
+
+      <div className="mt-8">
+
+        <RecentInterviews
+          interviews={dashboard.recentInterviews}
+        />
 
       </div>
 

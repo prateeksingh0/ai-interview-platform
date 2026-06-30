@@ -1,206 +1,209 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import DashboardLayout from "../../layouts/DashboardLayout";
 
 import interviewService from "../../services/interview.service";
+import dashboardService from "../../services/dashboard.service";
 
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 
-import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
-import { Textarea } from "../../components/ui/textarea";
-
-
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
 
 export default function Interview() {
-  const { id } = useParams();
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
-  const [interview, setInterview] = useState(null);
+  const [role, setRole] = useState("");
 
-  const [currentQuestion, setCurrentQuestion] = useState(() => {
-    return Number(localStorage.getItem("currentQuestion")) || 0;
-  });
+  const [difficulty, setDifficulty] =
+    useState("MEDIUM");
 
-  const [answers, setAnswers] = useState({});
-
-  const [saving, setSaving] = useState(false);
+  const [currentInterview, setCurrentInterview] =
+    useState(null);
 
   useEffect(() => {
-    loadInterview();
-  }, [id]);
+    loadDashboard();
+  }, []);
 
-  useEffect(() => {
-    localStorage.setItem(
-      "currentQuestion",
-      currentQuestion
-    );
-  }, [currentQuestion]);
-
-  async function loadInterview() {
+  async function loadDashboard() {
     try {
-      const response =
-        await interviewService.getInterview(id);
+      const data =
+        await dashboardService.getDashboard();
 
-      const data = response.data;
+      const interview =
+        data.recentInterviews.find(
+          (item) => item.status === "IN_PROGRESS"
+        );
 
-      setInterview(data);
-
-      const existingAnswers = {};
-
-      data.questions.forEach((question) => {
-        if (question.answer) {
-          existingAnswers[question.id] = question.answer.answer;
-        }
-      });
-
-      setAnswers(existingAnswers);
-    } finally {
-      setLoading(false);
+      if (interview) {
+        setCurrentInterview(interview);
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
-  async function handleNext() {
-    const question = interview.questions[currentQuestion];
 
-    const answer = answers[question.id]?.trim();
-
-    if (!answer) {
-      toast.error("Please answer the question before continuing.");
+  async function handleStart() {
+    if (!role.trim()) {
+      toast.error("Enter a job role.");
       return;
     }
 
     try {
-      setSaving(true);
+      setLoading(true);
 
-      await interviewService.submitAnswer({
-        questionId: question.id,
-        answer: answers[question.id] || "",
-      });
+      const response =
+        await interviewService.startInterview({
+          role,
+          difficulty,
+        });
 
-      setCurrentQuestion((prev) => prev + 1);
+      toast.success(response.message);
+
+      localStorage.setItem(
+        "currentQuestion",
+        "0"
+      );
+
+      navigate(
+        `/interview/${response.data.id}`
+      );
     } catch (error) {
       toast.error(
         error.response?.data?.message ||
-        "Failed to save answer."
+        "Unable to start interview."
       );
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   }
-
-  async function handleFinish() {
-    const question = interview.questions[currentQuestion];
-
-    try {
-      setSaving(true);
-
-      await interviewService.submitAnswer({
-        questionId: question.id,
-        answer: answers[question.id] || "",
-      });
-
-      await interviewService.finishInterview(interview.id);
-
-      localStorage.removeItem("currentQuestion");
-
-      toast.success("Interview completed!");
-
-      navigate(`/results/${interview.id}`);
-    } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-        "Failed to finish interview."
-      );
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  if (loading) {
-    return (
-      <DashboardLayout>
-        Loading...
-      </DashboardLayout>
-    );
-  }
-
-  const question =
-    interview.questions[currentQuestion];
 
   return (
     <DashboardLayout>
 
-      <h1 className="mb-2 text-3xl font-bold">
+      <h1 className="mb-6 text-3xl font-bold">
         Interview
       </h1>
 
-      <p className="mb-6 text-muted-foreground">
-        Question {currentQuestion + 1} of{" "}
-        {interview.questions.length}
-      </p>
+      {currentInterview && (
+        <Card className="mb-6 max-w-xl">
 
-      <Card>
+          <CardHeader>
 
-        <CardContent className="space-y-6 p-6">
+            <CardTitle>
+              Continue Interview
+            </CardTitle>
 
-          <h2 className="text-xl font-semibold">
-            {question.question}
-          </h2>
+          </CardHeader>
 
-          <Textarea
-            rows={10}
-            placeholder="Write your answer here..."
-            value={
-              answers[question.id] || ""
-            }
-            onChange={(e) =>
-              setAnswers((prev) => ({
-                ...prev,
-                [question.id]: e.target.value,
-              }))
-            }
-          />
+          <CardContent className="space-y-4">
 
-          <div className="flex justify-between">
+            <div>
+
+              <p className="font-medium">
+                {currentInterview.role}
+              </p>
+
+              <p className="text-sm text-muted-foreground">
+                Difficulty:{" "}
+                {currentInterview.difficulty}
+              </p>
+
+            </div>
 
             <Button
-              variant="outline"
-              disabled={currentQuestion === 0}
               onClick={() =>
-                setCurrentQuestion(
-                  currentQuestion - 1
+                navigate(
+                  `/interview/${currentInterview.id}`
                 )
               }
             >
-              Previous
+              Continue Interview
             </Button>
 
-            {currentQuestion === interview.questions.length - 1 ? (
-              <Button
-                disabled={
-                  saving ||
-                  !answers[question.id]?.trim()
-                }
-                onClick={handleFinish}
-              >
-                {saving ? "Finishing..." : "Finish Interview"}
-              </Button>
-            ) : (
-              <Button
-                disabled={
-                  saving ||
-                  !answers[question.id]?.trim()
-                }
-                onClick={handleNext}
-              >
-                {saving ? "Saving..." : "Next"}
-              </Button>
-            )}
+          </CardContent>
+
+        </Card>
+      )}
+
+      <Card className="max-w-xl">
+
+        <CardHeader>
+
+          <CardTitle>
+            Start New Interview
+          </CardTitle>
+
+        </CardHeader>
+
+        <CardContent className="space-y-5">
+
+          <div>
+
+            <Label>
+              Job Role
+            </Label>
+
+            <Input
+              placeholder="Node.js Developer"
+              value={role}
+              onChange={(e) =>
+                setRole(e.target.value)
+              }
+            />
 
           </div>
+
+          <div>
+
+            <Label>
+              Difficulty
+            </Label>
+
+            <select
+              className="w-full rounded-md border p-2"
+              value={difficulty}
+              onChange={(e) =>
+                setDifficulty(
+                  e.target.value
+                )
+              }
+            >
+              <option>
+                EASY
+              </option>
+
+              <option>
+                MEDIUM
+              </option>
+
+              <option>
+                HARD
+              </option>
+
+            </select>
+
+          </div>
+
+          <Button
+            className="w-full"
+            onClick={handleStart}
+            disabled={loading}
+          >
+            {loading
+              ? "Generating..."
+              : "Generate Interview"}
+          </Button>
 
         </CardContent>
 
@@ -208,5 +211,4 @@ export default function Interview() {
 
     </DashboardLayout>
   );
-
 }

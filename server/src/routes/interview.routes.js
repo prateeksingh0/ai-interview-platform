@@ -10,6 +10,7 @@ import {
   getInterview,
   finishInterview,
   getHistory,
+  deleteInterview,
 } from "../controllers/interview.controller.js";
 
 import {
@@ -47,6 +48,12 @@ router.get(
   "/history",
   authMiddleware,
   getHistory
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  deleteInterview
 );
 
 router.get(

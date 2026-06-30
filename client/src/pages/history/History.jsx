@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import DashboardLayout from "../../layouts/DashboardLayout";
 
@@ -31,6 +32,34 @@ export default function History() {
       setHistory(response.data);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this interview?"
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const response =
+        await interviewService.deleteInterview(id);
+
+      toast.success(response.message);
+
+      setHistory((prev) =>
+        prev.filter(
+          (item) => item.id !== id
+        )
+      );
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to delete interview."
+      );
     }
   }
 
@@ -100,20 +129,30 @@ export default function History() {
                     ).toLocaleString()}
                   </p>
 
-                  {item.status === "COMPLETED" ? (
-                    <Link to={`/results/${item.id}`}>
-                      <Button className="mt-4">
-                        View Result
-                      </Button>
-                    </Link>
-                  ) : (
+                  <div className="mt-4 flex gap-2">
+
+                    {item.status === "COMPLETED" ? (
+                      <Link to={`/results/${item.id}`}>
+                        <Button>
+                          View Result
+                        </Button>
+                      </Link>
+                    ) : (
+                      <Link to={`/interview/${item.id}`}>
+                        <Button>
+                          Continue Interview
+                        </Button>
+                      </Link>
+                    )}
+
                     <Button
-                      className="mt-4"
-                      disabled
+                      variant="destructive"
+                      onClick={() => handleDelete(item.id)}
                     >
-                      Interview In Progress
+                      Delete
                     </Button>
-                  )}
+
+                  </div>
 
                 </div>
 

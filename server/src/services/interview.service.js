@@ -346,6 +346,45 @@ class InterviewService {
       },
     });
   }
+
+  async deleteInterview(userId, interviewId) {
+    const session = await prisma.interviewSession.findFirst({
+      where: {
+        id: interviewId,
+        userId,
+      },
+    });
+
+    if (!session) {
+      throw new ApiError(404, "Interview not found");
+    }
+
+    await prisma.interviewAnswer.deleteMany({
+      where: {
+        question: {
+          sessionId: interviewId,
+        },
+      },
+    });
+
+    await prisma.interviewQuestion.deleteMany({
+      where: {
+        sessionId: interviewId,
+      },
+    });
+
+    await prisma.interviewSession.delete({
+      where: {
+        id: interviewId,
+      },
+    });
+
+    await this.updateUserStats(userId);
+
+    return {
+      message: "Interview deleted successfully",
+    };
+  }
 }
 
 export default new InterviewService();

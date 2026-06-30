@@ -93,3 +93,17 @@ export const getHistory = asyncHandler(async (req, res) => {
     )
   );
 });
+
+export const deleteInterview = asyncHandler(async (req, res) => {
+  const result = await interviewService.deleteInterview(
+    req.user.id,
+    req.params.id
+  );
+
+  res.status(200).json(
+    ApiResponse.success(
+      result.message,
+      null
+    )
+  );
+});

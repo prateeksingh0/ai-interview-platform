@@ -10,12 +10,12 @@ import Register from "./pages/auth/Register";
 import Dashboard from "./pages/dashboard/Dashboard";
 
 import Resume from "./pages/resume/Resume";
-import StartInterview from "./pages/interview/StartInterview";
 import History from "./pages/history/History";
 
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 import Interview from "./pages/interview/Interview";
+import InterviewSession from "./pages/interview/InterviewSession";
 
 import Results from "./pages/results/Results";
 
@@ -56,7 +56,7 @@ function App() {
       />
 
       <Route
-        path="/interview/:id"
+        path="/interview"
         element={
           <ProtectedRoute>
             <Interview />
@@ -65,10 +65,10 @@ function App() {
       />
 
       <Route
-        path="/interview/start"
+        path="/interview/:id"
         element={
           <ProtectedRoute>
-            <StartInterview />
+            <InterviewSession />
           </ProtectedRoute>
         }
       />

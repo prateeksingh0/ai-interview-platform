@@ -23,7 +23,7 @@ export default function QuickActions() {
     {
       title: "Start Interview",
       icon: Brain,
-      to: "/interview/start",
+      to: "/interview",
     },
     {
       title: "Interview History",
