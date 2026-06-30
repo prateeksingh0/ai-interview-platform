@@ -5,6 +5,8 @@ import DashboardLayout from "../../layouts/DashboardLayout";
 import dashboardService from "../../services/dashboard.service";
 
 import StatCard from "../../components/dashboard/StatCard";
+import RecentInterviews from "../../components/dashboard/RecentInterviews";
+
 
 export default function Dashboard() {
   const [dashboard, setDashboard] = useState(null);
@@ -68,6 +70,14 @@ export default function Dashboard() {
               : "Missing"
           }
         />
+
+        <div className="mt-8">
+
+          <RecentInterviews
+            interviews={dashboard.recentInterviews}
+          />
+
+        </div>
 
       </div>
 
