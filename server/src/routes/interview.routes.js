@@ -8,6 +8,7 @@ import {
   submitAnswer,
   submitInterview,
   getInterview,
+  finishInterview,
 } from "../controllers/interview.controller.js";
 
 import {
@@ -41,6 +42,13 @@ router.get(
   getInterview
 );
 
+
+router.post(
+  "/finish",
+  authMiddleware,
+  finishInterview
+);
+
 router.post(
   "/submit",
   authMiddleware,
@@ -48,5 +56,4 @@ router.post(
   validate,
   submitInterview
 );
-
 export default router;

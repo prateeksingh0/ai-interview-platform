@@ -66,3 +66,17 @@ export const getInterview = asyncHandler(async (req, res) => {
     )
   );
 });
+
+export const finishInterview = asyncHandler(async (req, res) => {
+  const interview = await interviewService.finishInterview(
+    req.user.id,
+    req.body.sessionId
+  );
+
+  res.status(200).json(
+    ApiResponse.success(
+      "Interview completed successfully",
+      interview
+    )
+  );
+});

@@ -24,6 +24,17 @@ class InterviewService {
 
         return response.data;
     }
+
+    async finishInterview(sessionId) {
+        const response = await api.post(
+            "/interview/finish",
+            {
+                sessionId,
+            }
+        );
+
+        return response.data;
+    }
 }
 
 export default new InterviewService();

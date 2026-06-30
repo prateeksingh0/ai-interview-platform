@@ -264,6 +264,62 @@ class InterviewService {
 
     return interview;
   }
+
+  async finishInterview(userId, sessionId) {
+    const session = await prisma.interviewSession.findFirst({
+      where: {
+        id: sessionId,
+        userId,
+      },
+      include: {
+        questions: {
+          include: {
+            answer: true,
+          },
+        },
+      },
+    });
+
+    if (!session) {
+      throw new ApiError(404, "Interview not found");
+    }
+
+    const answers = session.questions
+      .map((question) => question.answer)
+      .filter(Boolean);
+
+    const totalScore = answers.reduce(
+      (sum, answer) => sum + (answer.score || 0),
+      0
+    );
+
+    const overallScore =
+      answers.length > 0
+        ? Number((totalScore / answers.length).toFixed(2))
+        : 0;
+
+    const updatedSession =
+      await prisma.interviewSession.update({
+        where: {
+          id: sessionId,
+        },
+        data: {
+          status: "COMPLETED",
+          overallScore,
+        },
+        include: {
+          questions: {
+            include: {
+              answer: true,
+            },
+          },
+        },
+      });
+
+    await this.updateUserStats(userId);
+
+    return updatedSession;
+  }
 }
 
 export default new InterviewService();
