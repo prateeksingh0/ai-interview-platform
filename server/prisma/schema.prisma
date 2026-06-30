@@ -39,9 +39,11 @@ model User {
 }
 
 model Resume {
-  id         String   @id @default(cuid())
-  fileName   String
-  filePath   String
+  id            String   @id @default(cuid())
+  fileName      String
+  filePath      String
+  extractedText String   @db.Text
+
   uploadedAt DateTime @default(now())
 
   userId String @unique

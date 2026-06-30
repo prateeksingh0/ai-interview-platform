@@ -1,17 +1,18 @@
-import prisma from "../config/prisma.js";
 import fs from "fs";
+
+import prisma from "../config/prisma.js";
+import aiService from "./ai.service.js";
 
 class ResumeService {
   async uploadResume(userId, file) {
-    const existingResume = await prisma.resume.findUnique({
-      where: {
-        userId,
-      },
-    });
+    const existingResume =
+      await prisma.resume.findUnique({
+        where: {
+          userId,
+        },
+      });
 
-    // Delete old database record
     if (existingResume) {
-      // Delete old file if it exists
       if (
         existingResume.filePath &&
         fs.existsSync(existingResume.filePath)
@@ -26,13 +27,18 @@ class ResumeService {
       });
     }
 
-    const resume = await prisma.resume.create({
-      data: {
-        fileName: file.originalname,
-        filePath: file.path,
-        userId,
-      },
-    });
+    const extractedText =
+      await aiService.extractResume(file.path);
+
+    const resume =
+      await prisma.resume.create({
+        data: {
+          fileName: file.originalname,
+          filePath: file.path,
+          extractedText,
+          userId,
+        },
+      });
 
     return resume;
   }

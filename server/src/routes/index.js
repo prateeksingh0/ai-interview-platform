@@ -2,6 +2,7 @@ import { Router } from "express";
 
 import authRoutes from "./auth.routes.js";
 import resumeRoutes from "./resume.routes.js";
+import interviewRoutes from "./interview.routes.js";
 
 const router = Router();
 
@@ -15,5 +16,9 @@ router.get("/", (req, res) => {
     message: "API v1 Running",
   });
 });
+
+router.use("/interview", interviewRoutes);
+
+
 
 export default router;
