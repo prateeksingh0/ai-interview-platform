@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 import DashboardLayout from "../../layouts/DashboardLayout";
 
 import interviewService from "../../services/interview.service";
 
+
 import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Textarea } from "../../components/ui/textarea";
+
+
 
 export default function Interview() {
   const { id } = useParams();
@@ -16,22 +20,66 @@ export default function Interview() {
 
   const [interview, setInterview] = useState(null);
 
-  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [currentQuestion, setCurrentQuestion] = useState(() => {
+    return Number(localStorage.getItem("currentQuestion")) || 0;
+  });
 
   const [answers, setAnswers] = useState({});
+
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     loadInterview();
   }, [id]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "currentQuestion",
+      currentQuestion
+    );
+  }, [currentQuestion]);
 
   async function loadInterview() {
     try {
       const response =
         await interviewService.getInterview(id);
 
-      setInterview(response.data);
+      const data = response.data;
+
+      setInterview(data);
+
+      const existingAnswers = {};
+
+      data.questions.forEach((question) => {
+        if (question.answer) {
+          existingAnswers[question.id] = question.answer.answer;
+        }
+      });
+
+      setAnswers(existingAnswers);
     } finally {
       setLoading(false);
+    }
+  }
+  async function handleNext() {
+    const question = interview.questions[currentQuestion];
+
+    try {
+      setSaving(true);
+
+      await interviewService.submitAnswer({
+        questionId: question.id,
+        answer: answers[question.id] || "",
+      });
+
+      setCurrentQuestion((prev) => prev + 1);
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message ||
+        "Failed to save answer."
+      );
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -73,11 +121,10 @@ export default function Interview() {
               answers[question.id] || ""
             }
             onChange={(e) =>
-              setAnswers({
-                ...answers,
-                [question.id]:
-                  e.target.value,
-              })
+              setAnswers((prev) => ({
+                ...prev,
+                [question.id]: e.target.value,
+              }))
             }
           />
 
@@ -95,19 +142,18 @@ export default function Interview() {
               Previous
             </Button>
 
-            <Button
-              disabled={
-                currentQuestion ===
-                interview.questions.length - 1
-              }
-              onClick={() =>
-                setCurrentQuestion(
-                  currentQuestion + 1
-                )
-              }
-            >
-              Next
-            </Button>
+            {currentQuestion === interview.questions.length - 1 ? (
+              <Button>
+                Finish Interview
+              </Button>
+            ) : (
+              <Button
+                disabled={saving}
+                onClick={handleNext}
+              >
+                {saving ? "Saving..." : "Next"}
+              </Button>
+            )}
 
           </div>
 
@@ -117,4 +163,5 @@ export default function Interview() {
 
     </DashboardLayout>
   );
+
 }

@@ -15,6 +15,15 @@ class InterviewService {
 
         return response.data;
     }
+
+    async submitAnswer(data) {
+        const response = await api.post(
+            "/interview/answer",
+            data
+        );
+
+        return response.data;
+    }
 }
 
 export default new InterviewService();
