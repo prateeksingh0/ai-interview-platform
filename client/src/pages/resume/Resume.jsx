@@ -1,9 +1,17 @@
-function Resume() {
+import DashboardLayout from "../../layouts/DashboardLayout";
+
+export default function Resume() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-bold">Resume</h1>
-    </div>
+    <DashboardLayout>
+
+      <h1 className="text-3xl font-bold">
+        Upload Resume
+      </h1>
+
+      <p className="mt-3 text-muted-foreground">
+        Upload your latest resume to generate AI-powered interview questions.
+      </p>
+
+    </DashboardLayout>
   );
 }
-
-export default Resume;
